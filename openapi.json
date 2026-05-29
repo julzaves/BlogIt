@@ -1,0 +1,95 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BlogIt Comments API",
+    "version": "1.0.0",
+    "description": "REST API for managing blog comments in BlogIt."
+  },
+  "paths": {
+    "/api/posts/{post_id}/comments": {
+      "get": {
+        "summary": "List comments for a post",
+        "parameters": [
+          {
+            "name": "post_id",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Comments list"},
+          "404": {"description": "Post not found"}
+        }
+      },
+      "post": {
+        "summary": "Create a new comment on a post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {"type": "string"}
+                },
+                "required": ["content"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Comment created"},
+          "400": {"description": "Bad request"},
+          "404": {"description": "Post or user not found"}
+        }
+      }
+    },
+    "/api/comments/{comment_id}": {
+      "parameters": [
+        {
+          "name": "comment_id",
+          "in": "path",
+          "required": true,
+          "schema": {"type": "integer"}
+        }
+      ],
+      "get": {
+        "summary": "Get a single comment",
+        "responses": {
+          "200": {"description": "Comment details"},
+          "404": {"description": "Comment not found"}
+        }
+      },
+      "put": {
+        "summary": "Update a comment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {"type": "string"}
+                },
+                "required": ["content"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Comment updated"},
+          "400": {"description": "Bad request"},
+          "404": {"description": "Comment not found"}
+        }
+      },
+      "delete": {
+        "summary": "Delete a comment",
+        "responses": {
+          "200": {"description": "Comment deleted"},
+          "404": {"description": "Comment not found"}
+        }
+      }
+    }
+  }
+}
