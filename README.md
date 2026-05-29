@@ -41,7 +41,7 @@ Run this in your command line:
 This fork adds a dedicated comments REST API for the BlogIt application. The new API provides full CRUD support for comments tied to blog posts.
 
 ### API routes
-- `POST /api/posts/<post_id>/comments` - create a comment for a post (created as hardcoded user id 3)
+- `POST /api/posts/<post_id>/comments` - create a comment for a post
 - `GET /api/posts/<post_id>/comments` - list comments for a post
 - `GET /api/comments/<comment_id>` - read a single comment
 - `PUT /api/comments/<comment_id>` - update a comment
