@@ -17,6 +17,58 @@
         <p class="article-content">{{ post.content }}</p>
       </div>
     </article>
+
+    <section class="mt-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Comments for this Post</h5>
+          <div id="api-comments-box" class="small text-muted">Loading comments from the API...</div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const box = document.getElementById('api-comments-box');
+        if (!box) {
+          return;
+        }
+
+        fetch(`/api/posts/{{ post.id }}/comments`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to load comments: ' + response.status);
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (!Array.isArray(data) || data.length === 0) {
+              box.textContent = 'No comments available for this post.';
+              return;
+            }
+
+            const list = document.createElement('ul');
+            list.className = 'list-group list-group-flush';
+
+            data.forEach(comment => {
+              const item = document.createElement('li');
+              item.className = 'list-group-item';
+              item.innerHTML = `
+                <div><strong>${comment.author || 'Anonymous'}</strong> <small class="text-muted">on ${comment.date_posted ? comment.date_posted.split('T')[0] : 'unknown'}</small></div>
+                <p class="mb-0">${comment.content}</p>
+              `;
+              list.appendChild(item);
+            });
+
+            box.innerHTML = '';
+            box.appendChild(list);
+          })
+          .catch(error => {
+            box.textContent = 'Unable to load comments from the API. ' + error.message;
+          });
+      });
+    </script>
+
     <!-- Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
