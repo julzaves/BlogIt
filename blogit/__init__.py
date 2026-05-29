@@ -16,20 +16,23 @@ def create_test_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
     dotenv.load_dotenv()
+
+    # ensure the instance folder exists before building the DB path
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
+    test_db_path = os.path.join(app.instance_path, 'test.db')
     app.config.from_mapping(
         TESTING=True,
         # a default secret that should be overridden by instance config
         SECRET_KEY=os.urandom(16),
         # store the database in the instance folder
-        SQLALCHEMY_DATABASE_URI='sqlite:///test.db?check_same_thread=False',
+        SQLALCHEMY_DATABASE_URI=f'sqlite:///{test_db_path}?check_same_thread=False',
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
     app.app_context().push()  # this does the binding
-
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
 
     @app.route("/hello")
     def hello():
@@ -57,20 +60,22 @@ def create_development_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
     load_dotenv()
-    app.config.from_mapping(
-        # a default secret that should be overridden by instance config
-        SECRET_KEY=os.urandom(16),
-        # store the database in the instance folder
-        SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URL'),
 
-    )
-    app.app_context().push()  # this does the binding
-
-    # ensure the instance folder exists
+    # ensure the instance folder exists before building the DB path
     try:
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    site_db_path = os.path.join(app.instance_path, 'site.db')
+    app.config.from_mapping(
+        # a default secret that should be overridden by instance config
+        SECRET_KEY=os.urandom(16),
+        # store the database in the instance folder
+        SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URL', f'sqlite:///{site_db_path}'),
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    )
+    app.app_context().push()  # this does the binding
 
     @app.route("/hello")
     def hello():
