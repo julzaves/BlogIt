@@ -45,11 +45,21 @@ def create_test_app(test_config=None):
     login_manager.login_message_category = 'info'
     bcrypt.init_app(app)
 
-    # apply the blueprints to the app
-    from blogit import routes
+    # create the hardcoded "rest_api" user in test mode
+    from blogit.models import User
+    with app.app_context():
+        db.create_all()
+        if not db.session.get(User, 3):
+            rest_user = User(id=3, username='rest_api', email='rest_api@gmail.com', password='rest')
+            db.session.add(rest_user)
+            db.session.commit()
 
-    # register blueprint
+    # apply the blueprints to the app
+    from blogit import routes, api
+
+    # register blueprints
     app.register_blueprint(routes.bp)
+    app.register_blueprint(api.api_bp, url_prefix='/api')
 
     # make url_for('index') == url_for('blog.index')
     app.add_url_rule("/", endpoint="index")
@@ -90,10 +100,11 @@ def create_development_app(test_config=None):
     migrate = Migrate(app, db)
 
     # apply the blueprints to the app
-    from blogit import routes
+    from blogit import routes, api
 
-    # register blueprint
+    # register blueprints
     app.register_blueprint(routes.bp)
+    app.register_blueprint(api.api_bp, url_prefix='/api')
 
     # make url_for('index') == url_for('blog.index')
     app.add_url_rule("/", endpoint="index")
